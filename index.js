@@ -2,13 +2,14 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const auth = require("./modules/auth");
+const secret = require("./modules/secret");
 
 const users = [
     {id:123, email:"lars@lars.se", password: "$2a$12$k0gv6Ua2mS9CixE8zUoMVeeDsXXrCT4.KXSOu.P8VVVSYcwOSzsAO"},
     {id:55, email:"fredric@fredric.se", password: "$2a$12$xYRtcLxpvuvdRMeLd4p8xeNEPPWomlsPAS6d6LsIwnGSeS6uuTkZC"}
 ];
 
-const secret = "asödlfkjasölfjasödlfkjasöldfkjasöl";
 
 
 const app = express();
@@ -22,20 +23,9 @@ app.get("/",function(req,res){
 });
 
 app.get("/secret",auth,function(req,res){
-    res.send(req.cookies);
+    res.send("Still logged in...");
 });
 
-function auth(req,res,next){
-
-    if(req.cookies.token){
-    let token = jwt.verify(req.cookies.token,secret);
-    console.log(token);
-    }
-   
-
-    next();
-
-}
 
 
 
