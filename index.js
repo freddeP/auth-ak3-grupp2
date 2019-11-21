@@ -1,17 +1,43 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const users = [
     {id:123, email:"lars@lars.se", password: "$2a$12$k0gv6Ua2mS9CixE8zUoMVeeDsXXrCT4.KXSOu.P8VVVSYcwOSzsAO"},
     {id:55, email:"fredric@fredric.se", password: "$2a$12$xYRtcLxpvuvdRMeLd4p8xeNEPPWomlsPAS6d6LsIwnGSeS6uuTkZC"}
 ];
 
-const app = express();
+const secret = "asödlfkjasölfjasödlfkjasöldfkjasöl";
 
+
+const app = express();
+//Kommer på provet!!!! vad gör följande rad?
 app.use(express.urlencoded({extended:false}));
+app.use(cookieParser());
+
 
 app.get("/",function(req,res){
-    res.send("index route...");
+    res.send(req.cookies);
 });
+
+app.get("/secret",auth,function(req,res){
+    res.send(req.cookies);
+});
+
+function auth(req,res,next){
+
+    if(req.cookies.token){
+    let token = jwt.verify(req.cookies.token,secret);
+    console.log(token);
+    }
+   
+
+    next();
+
+}
+
+
 
 app.get("/login",function(req,res){
     res.sendFile(__dirname + "/loginform.html");
@@ -20,7 +46,38 @@ app.get("/login",function(req,res){
 app.post("/login",function(req,res){
 
 
-    res.send(req.body);
+    
+
+   let user = users.filter(function(u){
+       if(req.body.email === u.email)
+       {return true;}
+   });
+
+   if(user.length===1)
+   {
+        const password = req.body.password;
+        const hash = user[0].password;  // hashat lösenord från db/fil/minnede
+        // Kontrollera lösenord med bcrypt
+        bcrypt.compare(password,hash,function(err,success){
+         
+            if(success){
+
+                const token = jwt.sign({email:user[0].email},secret,{expiresIn:180})
+
+
+                res.cookie("token",token,{httpOnly:true,sameSite:"Strict"});
+                res.send("Loggin Success!!!");
+            }
+            else{
+                res.send("Wrong password");
+            }
+
+        });
+
+   }
+   else{ // Här hamnar vi om det inte existerar användare med rätt email
+       res.send("no such user...");
+   }
 
     /**
      * 1. hämta data som klienten skickat ( Repetition )
