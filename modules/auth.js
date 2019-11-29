@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+// a js-file that exports a string
 const secret = require("./secret");
 function auth(req,res,next){
 
