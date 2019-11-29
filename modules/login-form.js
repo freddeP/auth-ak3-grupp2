@@ -1,3 +1,5 @@
+
+let html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,3 +30,11 @@
     
 </body>
 </html>
+`;
+
+
+module.exports = function(req,res){
+
+    res.send(html);
+
+}
